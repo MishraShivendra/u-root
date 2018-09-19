@@ -33,15 +33,6 @@ func getInput(fileName string) (input []byte, err error) {
 func calculateCksum(input []byte) uint32 {
 
 	var cksumTable = []uint32{
-		/*
-		 * Following table is originally contributed by
-		 * Q. Frank Xia et. al (qx@math.columbia.edu)
-		 * under GPL License.
-		 * http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/
-		 * old-releases/i386/1.0-RELEASE/ports/textutils/src/cksum.c
-		 *
-		 * Polynomial same as Linux cksum utility i.e. 0x04C11DB7
-		 */
 		0x0,
 		0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
 		0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6,
@@ -97,10 +88,8 @@ func calculateCksum(input []byte) uint32 {
 	}
 
 	cksum := uint32(0)
-	for i := 0; i < len(input); i++ {
-		cksum = (cksum << 8) ^ uint32(cksumTable[((cksum>>24)^uint32(input[i]))&0xFF])
-		testVal := cksum
-		testVal = ^testVal
+	for _, oneByte := range input {
+		cksum = (cksum << 8) ^ cksumTable[ byte(cksum>>24) ^ oneByte ]
 	}
 	// checksum for data length
 	dataLength := len(input)
